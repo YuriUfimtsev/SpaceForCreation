@@ -1,0 +1,130 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>Index</PageTitle>
+<div class="row">
+    <div class="col-4">
+        <div class="upload-container @hoverClass">
+            <img id="upload-image" src="1.svg">
+            <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
+            <p text-align>Click to choose file <br />or drop it here.</p>
+        </div>
+    </div>
+    <div class="col-4">
+        <h3>Choose file type</h3>
+        <select name="File type">
+            <option value="first">Educational achievement data</option>
+            <option value="second" selected>Proctoring status data</option>
+        </select>
+        <p>@message</p>
+    </div>
+    <div class="col-4">
+        <div class="upload-container @hoverClass">
+            <img id="upload-image" src="1.svg">
+            <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
+            <p text-align>Click to choose file <br />or drop it here.</p>
+        </div>
+    </div>
+</div>
+
+@*<div class="upload-container @hoverClass">
+    <img id="upload-image" src="1.svg">
+    <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
+    <p text-align >Click to choose file <br />or drop it here.</p>
+</div>*@
+@*<p>@message</p>*@
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Second name</th>
+                <th>First name</th>
+                <th>Patronymic</th>
+                <th>Assessment</th>
+                <th>Proctoring status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in weatherForecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                    <td>@forecast.FileName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private List<WeatherForecast>? weatherForecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/students.json");
+        weatherForecasts = new List<WeatherForecast>();
+        if (forecasts != null)
+        {
+            foreach (var forecast in forecasts)
+            {
+                weatherForecasts.Add(forecast);
+            }
+        }
+    }
+
+    public class WeatherForecast
+    {
+
+        public DateTime Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public string FileName { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+
+        public WeatherForecast(string fileName)
+        {
+            this.Date = new DateTime(2004, 07, 27);
+            this.TemperatureC = 56;
+            this.Summary = "RF";
+            this.FileName = fileName;
+        }
+    }
+
+    private string hoverClass;
+    private string? message;
+
+    public Index()
+    {
+        hoverClass = string.Empty;
+    }
+
+    void OnDragover() => hoverClass = "hover";
+
+    void OnDragleave() => hoverClass = string.Empty;
+
+    private void LoadFile(InputFileChangeEventArgs inputFile)
+    {
+        OnDragleave();
+        var file = inputFile.File;
+        var stream = file.OpenReadStream(512000 * 4);
+        // Do smth
+        message = $"'{file.Name}' file has been successfully uploaded.";
+
+        var forecast = new WeatherForecast(file.Name);
+        weatherForecasts.Add(forecast);
+    }
+}
