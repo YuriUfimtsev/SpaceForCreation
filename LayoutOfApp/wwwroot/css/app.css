@@ -70,6 +70,67 @@ body {
     color: red;
 }
 
+.message-block {
+    background: #fff;
+    text-align: center;
+    font-size:large;
+    color: #000;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+    .message-block.successfull {
+        color:green;
+    }
+
+    .message-block.unsuccessfull {
+        color: red;
+    }
+
+.arrow {
+    background: #e0f2f7;
+    text-align: center;
+    color: #000;
+    padding: 20px;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+.arrow-right,
+.arrow-left {
+    position: relative;
+    z-index: 10;
+}
+
+    .arrow-right::after,
+    .arrow-left::after {
+        content: '';
+        width: 0;
+        height: 0;
+        display: block;
+        position: absolute;
+        z-index: 10;
+        border: 0;
+    }
+
+    .arrow-right::after {
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        margin-top: -10px;
+        top: 50%;
+        border-left: 10px solid #e0f2f7;
+        right: -10px;
+    }
+
+    .arrow-left::after {
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        margin-top: -10px;
+        top: 50%;
+        border-right: 10px solid #e0f2f7;
+        left: -10px;
+    }
+
 @media (min-width: 768px) {
 
     .navbar-toggler {

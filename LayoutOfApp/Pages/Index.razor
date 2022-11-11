@@ -1,40 +1,38 @@
 ﻿@page "/"
 @inject HttpClient Http
 
-<PageTitle>Index</PageTitle>
+<PageTitle>OnlineCoursesAnalyzer</PageTitle>
 <div class="row">
     <div class="col-4">
         <div class="upload-container @hoverClass">
             <img id="upload-image" src="1.svg">
             <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
-            <p text-align>Click to choose file <br />or drop it here.</p>
+            <p text-align>Нажмите, чтобы добавить файл <br />или переместите его сюда.</p>
         </div>
     </div>
     <div class="col-4">
-        <h3>Choose file type</h3>
-        <select name="File type">
-            <option value="first">Educational achievement data</option>
-            <option value="second" selected>Proctoring status data</option>
-        </select>
-        <p>@message</p>
+        <div class="arrow arrow-left">
+            Поле для данных об успеваемости
+        </div>
+        <div class="arrow arrow-right">
+            Поле для данных о результатах прокторинга
+        </div>
+        <button type="button" class="btn btn-outline-dark">
+            Получить результат
+        </button>
+        <div class="message-block @validationClass">@message</div>
     </div>
     <div class="col-4">
         <div class="upload-container @hoverClass">
             <img id="upload-image" src="1.svg">
             <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
-            <p text-align>Click to choose file <br />or drop it here.</p>
+            <p text-align>Нажмите, чтобы добавить файл <br />или переместите его сюда.</p>
         </div>
     </div>
 </div>
 
-@*<div class="upload-container @hoverClass">
-    <img id="upload-image" src="1.svg">
-    <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
-    <p text-align >Click to choose file <br />or drop it here.</p>
-</div>*@
-@*<p>@message</p>*@
 
-@if (forecasts == null)
+@if (students == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -43,22 +41,26 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Second name</th>
-                <th>First name</th>
-                <th>Patronymic</th>
-                <th>Assessment</th>
-                <th>Proctoring status</th>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Отчество</th>
+                <th>Оценка</th>
+                <th>Статус прокторинга</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in weatherForecasts)
+            @if (studentsData == null)
+            {
+                throw new InvalidProgramException();
+            }
+            @foreach (var forecast in studentsData)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                    <td>@forecast.FileName</td>
+                    <td>@forecast.SecondName</td>
+                    <td>@forecast.FirstName</td>
+                    <td>@forecast.Patronymic</td>
+                    <td>@forecast.Assessment</td>
+                    <td>@forecast.ProctoringStatus</td>
                 </tr>
             }
         </tbody>
@@ -66,65 +68,96 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
-    private List<WeatherForecast>? weatherForecasts;
+
+    //public enum Assesments { A, B, C, D, E, F };
+    private Students[]? students;
+    private List<Students>? studentsData;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/students.json");
-        weatherForecasts = new List<WeatherForecast>();
-        if (forecasts != null)
+        students = await Http.GetFromJsonAsync<Students[]>("sample-data/students.json");
+        studentsData = new List<Students>();
+        if (students != null)
         {
-            foreach (var forecast in forecasts)
+            foreach (var student in students)
             {
-                weatherForecasts.Add(forecast);
+                studentsData.Add(student);
             }
         }
     }
 
-    public class WeatherForecast
+    public class Students
     {
+        public string SecondName { get; set; }
 
-        public DateTime Date { get; set; }
+        public string FirstName { get; set; }
 
-        public int TemperatureC { get; set; }
+        public string Patronymic { get; set; }
 
-        public string? Summary { get; set; }
+        public string Assessment { get; set; }
 
-        public string FileName { get; set; }
+        public string ProctoringStatus { get; set; }
 
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-
-        public WeatherForecast(string fileName)
+        public Students()
         {
-            this.Date = new DateTime(2004, 07, 27);
-            this.TemperatureC = 56;
-            this.Summary = "RF";
-            this.FileName = fileName;
+            this.SecondName = "Анонимов";
+            this.FirstName = "Аноним";
+            this.Patronymic = "Анонимович";
+            this.Assessment = "A";
+            this.ProctoringStatus = "Пройден";
         }
     }
 
     private string hoverClass;
+    private string validationClass;
     private string? message;
 
     public Index()
     {
         hoverClass = string.Empty;
+        validationClass = string.Empty;
     }
 
     void OnDragover() => hoverClass = "hover";
 
     void OnDragleave() => hoverClass = string.Empty;
 
+    void Successfully(string text)
+    {
+        validationClass = "successfull";
+        message = text;
+    }
+
+    void Unsuccessfully(string text)
+    {
+        validationClass = "unsuccessfull";
+        message = text;
+    }
+
     private void LoadFile(InputFileChangeEventArgs inputFile)
     {
         OnDragleave();
         var file = inputFile.File;
-        var stream = file.OpenReadStream(512000 * 4);
-        // Do smth
-        message = $"'{file.Name}' file has been successfully uploaded.";
+        if (file == null)
+        {
+            message = $"Файл не добавлен";
+            return;
+        }
 
-        var forecast = new WeatherForecast(file.Name);
-        weatherForecasts.Add(forecast);
+        if (file.Size > 512000 * 4)
+        {
+            Unsuccessfully($"'{file.Name}' не добавлен. Слишком большой размер");
+        }
+
+        var stream = file.OpenReadStream(512000 * 4);
+        Successfully($"'{file.Name}' успешно добавлен");
+
+        var newStudent = new Students();
+        if (studentsData == null)
+        {
+            throw new InvalidProgramException();
+        }
+
+        studentsData.Add(newStudent);
     }
 }

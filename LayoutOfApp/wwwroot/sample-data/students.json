@@ -1,27 +1,37 @@
 ﻿[
   {
-    "date": "2018-05-06",
-    "temperatureC": 1,
-    "summary": "Freezing"
+    "secondName": "Анонимов",
+    "firstName": "Аноним",
+    "patronymic": "Анонимович",
+    "asessment": "F",
+    "proctoringStatus": "Пройден"
   },
   {
-    "date": "2018-05-07",
-    "temperatureC": 14,
-    "summary": "Bracing"
+    "SecondName": "Иванович",
+    "FirstName": "Иван",
+    "Patronymic": "Иванов",
+    "Assessment": "D",
+    "ProctoringStatus": "Не пройден"
   },
   {
-    "date": "2018-05-08",
-    "temperatureC": -13,
-    "summary": "Freezing"
+    "SecondName": "Иванович",
+    "FirstName": "Иван",
+    "Patronymic": "Иванов",
+    "Assessment": "C",
+    "ProctoringStatus": "Пройден"
   },
   {
-    "date": "2018-05-09",
-    "temperatureC": -16,
-    "summary": "Balmy"
+    "SecondName": "Иванович",
+    "FirstName": "Иван",
+    "Patronymic": "Иванов",
+    "Assessment": "B",
+    "ProctoringStatus": "Не пройден"
   },
   {
-    "date": "2018-05-10",
-    "temperatureC": -2,
-    "summary": "Chilly"
+    "SecondName": "Иванович",
+    "FirstName": "Иван",
+    "Patronymic": "Иванов",
+    "Assessment": "A",
+    "ProctoringStatus": "Пройден"
   }
 ]
