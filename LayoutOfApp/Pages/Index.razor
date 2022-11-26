@@ -1,92 +1,91 @@
 ﻿@page "/"
 @inject HttpClient Http
+@using LayoutOfApp.Shared;
+
 
 <PageTitle>OnlineCoursesAnalyzer</PageTitle>
+<div class="container">
 <div class="row">
-    <div class="col-4">
+        <div class="col-6 d-grid">
+        <h5>Поле для данных об успеваемости</h5>
         <div class="upload-container @hoverClass">
             <img id="upload-image" src="1.svg">
             <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
             <p text-align>Нажмите, чтобы добавить файл <br />или переместите его сюда.</p>
         </div>
+            <h6>Добавлен: @currentFileName</h6>
     </div>
-    <div class="col-4">
-        <div class="arrow arrow-left">
-            Поле для данных об успеваемости
-        </div>
-        <div class="arrow arrow-right">
-            Поле для данных о результатах прокторинга
-        </div>
-        <button type="button" class="btn btn-outline-dark">
-            Получить результат
-        </button>
-        <div class="message-block @validationClass">@message</div>
-    </div>
-    <div class="col-4">
+    <div class="col-6 d-grid">
+            <h5>Поле для данных о результатах прокторинга</h5>
         <div class="upload-container @hoverClass">
             <img id="upload-image" src="1.svg">
             <InputFile id="file-input" OnChange="@LoadFile" @ondragover="OnDragover" @ondragleave="OnDragleave" />
             <p text-align>Нажмите, чтобы добавить файл <br />или переместите его сюда.</p>
         </div>
+            <h6>Добавлен: @currentFileName</h6>
     </div>
 </div>
 
+<div class="row">
+        <div class="col-3 d-grid">
+            <button type="button" class="btn btn-outline-dark btn-block" OnClick="@GetResult">
+            Получить результат
+            </button>
+        </div>
+        <div class="col-9">
+            <div class="message-block @validationClass">@message</div>
+        </div>
+</div>
 
-@if (students == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
+<div class="row">
+    @if (students == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <TableTemplate Items="studentsData" TItem="Student">
+            <TableHeader>
                 <th>Фамилия</th>
                 <th>Имя</th>
                 <th>Отчество</th>
                 <th>Оценка</th>
                 <th>Статус прокторинга</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (studentsData == null)
-            {
-                throw new InvalidProgramException();
-            }
-            @foreach (var forecast in studentsData)
-            {
-                <tr>
-                    <td>@forecast.SecondName</td>
-                    <td>@forecast.FirstName</td>
-                    <td>@forecast.Patronymic</td>
-                    <td>@forecast.Assessment</td>
-                    <td>@forecast.ProctoringStatus</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+            </TableHeader>
+            <RowTemplate>
+                <td>@context.SecondName</td>
+                <td>@context.FirstName</td>
+                <td>@context.Patronymic</td>
+                <td>@context.Assessment</td>
+                <td>@context.ProctoringStatus</td>
+            </RowTemplate>
+        </TableTemplate>
+    }
+</div>
+</div>
 
 @code {
+    private string? _rootPath;
 
     //public enum Assesments { A, B, C, D, E, F };
-    private Students[]? students;
-    private List<Students>? studentsData;
+    private Student[]? students;
+    private List<(Student, bool)>? studentsData;
+    private Stream FirstFile;
 
     protected override async Task OnInitializedAsync()
     {
-        students = await Http.GetFromJsonAsync<Students[]>("sample-data/students.json");
-        studentsData = new List<Students>();
-        if (students != null)
+        this.students = await Http.GetFromJsonAsync<Student[]>("sample-data/students.json");
+        this.studentsData = new List<(Student, bool)>();
+        if (this.students != null)
         {
             foreach (var student in students)
             {
-                studentsData.Add(student);
+                this.studentsData.Add((student, true));
             }
         }
     }
 
-    public class Students
+    public class Student
     {
         public string SecondName { get; set; }
 
@@ -98,7 +97,7 @@ else
 
         public string ProctoringStatus { get; set; }
 
-        public Students()
+        public Student()
         {
             this.SecondName = "Анонимов";
             this.FirstName = "Аноним";
@@ -111,27 +110,35 @@ else
     private string hoverClass;
     private string validationClass;
     private string? message;
+    private string? currentFileName;
 
     public Index()
     {
-        hoverClass = string.Empty;
-        validationClass = string.Empty;
+        this.hoverClass = string.Empty;
+        this.validationClass = string.Empty;
+        //this.environment = environment;
+
     }
 
-    void OnDragover() => hoverClass = "hover";
+    private void OnDragover() => this.hoverClass = "hover";
 
-    void OnDragleave() => hoverClass = string.Empty;
+    private void OnDragleave() => this.hoverClass = string.Empty;
 
-    void Successfully(string text)
+    private void Successfully(string text)
     {
-        validationClass = "successfull";
-        message = text;
+        this.validationClass = "successfull";
+        this.message = text;
     }
 
-    void Unsuccessfully(string text)
+    private void Unsuccessfully(string text)
     {
-        validationClass = "unsuccessfull";
-        message = text;
+        this.validationClass = "unsuccessfull";
+        this.message = text;
+    }
+
+    private void GetResult()
+    {
+        var c = this.FirstFile;
     }
 
     private void LoadFile(InputFileChangeEventArgs inputFile)
@@ -140,24 +147,26 @@ else
         var file = inputFile.File;
         if (file == null)
         {
-            message = $"Файл не добавлен";
+            this.message = $"Файл не добавлен";
             return;
         }
+
+        var stream = file.OpenReadStream(512000 * 4);
+        this.FirstFile = stream;
+        var p = file.OpenReadStream();
+        var stream5 = new MemoryStream();
 
         if (file.Size > 512000 * 4)
         {
             Unsuccessfully($"'{file.Name}' не добавлен. Слишком большой размер");
         }
 
-        var stream = file.OpenReadStream(512000 * 4);
-        Successfully($"'{file.Name}' успешно добавлен");
-
-        var newStudent = new Students();
-        if (studentsData == null)
+        var newStudent = new Student();
+        if (this.studentsData == null)
         {
             throw new InvalidProgramException();
         }
 
-        studentsData.Add(newStudent);
+        studentsData.Add((newStudent, true));
     }
 }

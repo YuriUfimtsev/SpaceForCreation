@@ -19,7 +19,7 @@
 @code {
     bool collapseNavMenu = true;
 
-    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    string? NavMenuCssClass => this.collapseNavMenu ? "collapse" : null;
 
     void ToggleNavMenu()
     {

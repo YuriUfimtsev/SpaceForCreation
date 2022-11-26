@@ -72,11 +72,10 @@ body {
 
 .message-block {
     background: #fff;
-    text-align: center;
-    font-size:large;
+    text-align: left;
+    font-size: medium;
     color: #000;
-    padding: 20px;
-    margin-top: 20px;
+    padding: 10px;
 }
 
     .message-block.successfull {
@@ -138,6 +137,20 @@ body {
     }
 }
 
+.aligh-left {
+    align-content: start;
+}
+
+.full-area {
+    width: 100%;
+    height: 100%;
+}
+
+btn.btn-outline-dark.full-area-button {
+    float: left;
+    width: auto;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -167,6 +180,7 @@ body {
         content: "An error has occurred."
     }
 
+
 .upload-container {
     display: flex;
     justify-content: center;
@@ -188,7 +202,7 @@ body {
 
     .upload-container img {
         height:50%;
-        width: 50%;
+        width: 30%;
         margin-bottom: 20px;
         user-select: none;
     }
@@ -196,7 +210,7 @@ body {
     .upload-container input[type=file] {
       position: absolute;
       width: 50%;
-      height: 50%;
+      height: 30%;
       opacity: 0;
       cursor: pointer;
     }
