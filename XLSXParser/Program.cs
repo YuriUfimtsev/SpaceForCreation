@@ -1,8 +1,12 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using XLSXParser;
 
 const string fileName = "../../../Data.xlsx";
 string[] parameters = { "Last Name", "First Name", "Second Name" };
+
+var k = new EPPlusRealization();
+k.Process(new FileStream(fileName, FileMode.Open));
 
 string GetCellValue(Cell cell, SharedStringTable sharedStringTable)
 {
